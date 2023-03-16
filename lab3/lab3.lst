@@ -95,192 +95,212 @@
     11 0000005B 6F20696E740A000000-
     11 00000064 00000000           
     12                                        lenErrorSTI equ $-ErrorSTIMsg
-    13                                  
-    14 00000068 526573756C743A20              ResMsg dq "Result: "
-    15                                        lenRes equ $-ResMsg
-    16                                  
-    17                                     section .bss
-    18 00000000 <res 50h>                     InBuf resq 10
-    19                                        lenIn equ $-InBuf
-    20 00000050 <res 50h>                     OutBuf resq 10
-    21                                        lenOut equ $-OutBuf
-    22 000000A0 ????????????????              a resq 1
-    23 000000A8 ????????????????              x resq 1
-    24 000000B0 ????????????????              b resq 1
-    25 000000B8 ????????????????              j resq 1
-    26 000000C0 ????????????????              F resq 1
-    27                                  
-    28                                     section .text ; сегмент кода
-    29                                        global _start
-    30                                  
-    31                                  
-    32                                  _start:
-    33                                  ; input
-    34                                     ; Input a
-    35 000000A9 B801000000                    mov rax, 1; системная функция 1 (write)
-    36 000000AE BF01000000                    mov rdi, 1; дескриптор файла stdout=1
-    37 000000B3 48BE-                         mov rsi, Hello1Msg ; адрес выводимой строки
-    37 000000B5 [0000000000000000] 
-    38 000000BD BA10000000                    mov rdx, lenHello1 ; длина строки
-    39 000000C2 0F05                          syscall; вызов системной функции
-    40                                     ;end
-    41                                  
-    42                                     ; read data to InBuf
-    43 000000C4 B800000000                    mov rax, 0; системная функция 0 (read)
-    44 000000C9 BF00000000                    mov rdi, 0 ; дескриптор файла stdout=0
-    45 000000CE 488D3425[00000000]            lea rsi, InBuf ; передаем указатель на буфер
-    46 000000D6 BA50000000                    mov rdx, lenIn ; длина строки
-    47 000000DB 0F05                          syscall
-    48                                     ; end
-    49                                  
-    50                                     ; InBuf To string
-    51 000000DD 48BE-                         mov RSI, InBuf
-    51 000000DF [0000000000000000] 
-    52 000000E7 E866FFFFFF                    call StrToInt64; Вход: ESI Выход: EAX, EBX содержит 0 if errors = 0
-    53 000000EC 83FB00                        cmp EBX, 0
-    54 000000EF 0F85FE000000                  jne error
-    55 000000F5 48890425[A0000000]            mov [a], RAX
-    56                                     ; end
-    57                                  
-    58                                     ; Input x
-    59 000000FD B801000000                    mov rax, 1; системная функция 1 (write)
-    60 00000102 BF01000000                    mov rdi, 1; дескриптор файла stdout=1
-    61 00000107 48BE-                         mov rsi, Hello2Msg ; адрес выводимой строки
-    61 00000109 [1000000000000000] 
-    62 00000111 BA10000000                    mov rdx, lenHello2 ; длина строки
-    63 00000116 0F05                          syscall; вызов системной функции
-    64                                     ;end
-    65                                  
-    66                                     ; read data to InBuf
-    67 00000118 B800000000                    mov rax, 0; системная функция 0 (read)
-    68 0000011D BF00000000                    mov rdi, 0 ; дескриптор файла stdout=0
-    69 00000122 488D3425[00000000]            lea rsi, InBuf ; передаем указатель на буфер
-    70 0000012A BA50000000                    mov rdx, lenIn ; длина строки
-    71 0000012F 0F05                          syscall
-    72                                     ; end
-    73                                  
-    74                                     ; InBuf To string
-    75 00000131 48BE-                         mov RSI, InBuf
-    75 00000133 [0000000000000000] 
-    76 0000013B E812FFFFFF                    call StrToInt64; Вход: ESI Выход: EAX, EBX содержит 0 if errors = 0
-    77 00000140 83FB00                        cmp EBX, 0
-    78 00000143 0F85AA000000                  jne error
-    79 00000149 48890425[A8000000]            mov [x], RAX
-    80                                     ; end
-    81                                  
-    82                                     ; Input q
-    83 00000151 B801000000                    mov rax, 1; системная функция 1 (write)
-    84 00000156 BF01000000                    mov rdi, 1; дескриптор файла stdout=1
-    85 0000015B 48BE-                         mov rsi, Hello3Msg ; адрес выводимой строки
-    85 0000015D [2000000000000000] 
-    86 00000165 BA10000000                    mov rdx, lenHello3 ; длина строки
-    87 0000016A 0F05                          syscall; вызов системной функции
-    88                                     ;end
-    89                                  
-    90                                     ; read data to InBuf
-    91 0000016C B800000000                    mov rax, 0; системная функция 0 (read)
-    92 00000171 BF00000000                    mov rdi, 0 ; дескриптор файла stdout=0
-    93 00000176 488D3425[00000000]            lea rsi, InBuf ; передаем указатель на буфер
-    94 0000017E BA50000000                    mov rdx, lenIn ; длина строки
-    95 00000183 0F05                          syscall
-    96                                     ; end
-    97                                  
-    98                                     ; InBuf To string
-    99 00000185 48BE-                         mov RSI, InBuf
-    99 00000187 [0000000000000000] 
-   100 0000018F E8BEFEFFFF                    call StrToInt64; Вход: ESI Выход: EAX, EBX содержит 0 if errors = 0
-   101 00000194 83FB00                        cmp EBX, 0
-   102 00000197 755A                          jne error
-   103 00000199 48890425[B0000000]            mov [b], RAX
-   104                                     ; end
-   105                                  
-   106                                     ; Input j
-   107 000001A1 B801000000                    mov rax, 1; системная функция 1 (write)
-   108 000001A6 BF01000000                    mov rdi, 1; дескриптор файла stdout=1
-   109 000001AB 48BE-                         mov rsi, Hello4Msg ; адрес выводимой строки
-   109 000001AD [3000000000000000] 
-   110 000001B5 BA10000000                    mov rdx, lenHello4 ; длина строки
-   111 000001BA 0F05                          syscall; вызов системной функции
-   112                                     ;end
-   113                                  
-   114                                     ; read data to InBuf
-   115 000001BC B800000000                    mov rax, 0; системная функция 0 (read)
-   116 000001C1 BF00000000                    mov rdi, 0 ; дескриптор файла stdout=0
-   117 000001C6 488D3425[00000000]            lea rsi, InBuf ; передаем указатель на буфер
-   118 000001CE BA50000000                    mov rdx, lenIn ; длина строки
-   119 000001D3 0F05                          syscall
-   120                                     ; end
-   121                                  
-   122                                     ; InBuf To string
-   123 000001D5 48BE-                         mov RSI, InBuf
-   123 000001D7 [0000000000000000] 
-   124 000001DF E86EFEFFFF                    call StrToInt64; Вход: ESI Выход: EAX, EBX содержит 0 if errors = 0
-   125 000001E4 83FB00                        cmp EBX, 0
-   126 000001E7 750A                          jne error
-   127 000001E9 48890425[B0000000]            mov [b], RAX
-   128                                     ; end
-   129 000001F1 EB1D                          jmp output
-   130                                  ; end
-   131                                  error:
-   132 000001F3 B801000000                    mov rax, 1; системная функция 1 (write)
-   133 000001F8 BF01000000                    mov rdi, 1; дескриптор файла stdout=1
-   134 000001FD 48BE-                         mov rsi, ErrorSTIMsg ; адрес выводимой строки
-   134 000001FF [4000000000000000] 
-   135 00000207 BA28000000                    mov rdx, lenErrorSTI ; длина строки
-   136 0000020C 0F05                          syscall; вызов системной функции
-   137 0000020E EB38                          jmp end
-   138                                     ;end
-   139                                  
-   140                                  
-   141                                  ; ; Count result
-   142                                  ;    mov RAX, [a]
-   143                                  ;    imul rax
-   144                                  ;    mov RBX, [a]
-   145                                  ;    imul rbx
-   146                                  ;    mov RBX, [q]
-   147                                  ;    idiv RBX
-   148                                  ;    mov RBX, RAX; Сохранили третий рез-т в BX
-   149                                  ;    mov RAX, [a]
-   150                                  ;    mov RDX, [q]
-   151                                  ;    imul RDX
-   152                                  ;    mov RDX, 2
-   153                                  ;    imul RDX
-   154                                  ;    sub RBX, RAX
-   155                                  ;    mov RAX, [r]
-   156                                  ;    imul RAX
-   157                                  ;    add RAX, RBX
-   158                                  ;    mov [S], RAX; Success!
-   159                                  ; ; end
-   160                                  
-   161                                  ; ; Result to string
-   162                                  ;    mov rsi, OutBuf
-   163                                  ;    mov rax, [S]
-   164                                  ;    cwde
-   165                                  ;    call IntToStr64
-   166                                  ; ; end
+    13 00000068 5A65726F2044697669-           ZeroDivMsg dq "Zero Division Error", 10
+    13 00000071 73696F6E204572726F-
+    13 0000007A 7200000000000A0000-
+    13 00000083 0000000000         
+    14                                        lenZeroDiv equ $-ZeroDivMsg
+    15                                  
+    16 00000088 526573756C743A20              ResMsg dq "Result: "
+    17                                        lenRes equ $-ResMsg
+    18                                  
+    19                                     section .bss
+    20 00000000 <res 50h>                     InBuf resq 10
+    21                                        lenIn equ $-InBuf
+    22 00000050 <res 50h>                     OutBuf resq 10
+    23                                        lenOut equ $-OutBuf
+    24 000000A0 ????????????????              a resq 1
+    25 000000A8 ????????????????              x resq 1
+    26 000000B0 ????????????????              b resq 1
+    27 000000B8 ????????????????              j resq 1
+    28 000000C0 ????????????????              F resq 1
+    29                                  
+    30                                     section .text ; сегмент кода
+    31                                        global _start
+    32                                  
+    33                                  
+    34                                  _start:
+    35                                  ; input
+    36                                     ; Input a
+    37 000000A9 B801000000                    mov rax, 1; системная функция 1 (write)
+    38 000000AE BF01000000                    mov rdi, 1; дескриптор файла stdout=1
+    39 000000B3 48BE-                         mov rsi, Hello1Msg ; адрес выводимой строки
+    39 000000B5 [0000000000000000] 
+    40 000000BD BA10000000                    mov rdx, lenHello1 ; длина строки
+    41 000000C2 0F05                          syscall; вызов системной функции
+    42                                     ;end
+    43                                  
+    44                                     ; read data to InBuf
+    45 000000C4 B800000000                    mov rax, 0; системная функция 0 (read)
+    46 000000C9 BF00000000                    mov rdi, 0 ; дескриптор файла stdout=0
+    47 000000CE 488D3425[00000000]            lea rsi, InBuf ; передаем указатель на буфер
+    48 000000D6 BA50000000                    mov rdx, lenIn ; длина строки
+    49 000000DB 0F05                          syscall
+    50                                     ; end
+    51                                  
+    52                                     ; InBuf To string
+    53 000000DD 48BE-                         mov RSI, InBuf
+    53 000000DF [0000000000000000] 
+    54 000000E7 E866FFFFFF                    call StrToInt64; Вход: ESI Выход: EAX, EBX содержит 0 if errors = 0
+    55 000000EC 83FB00                        cmp EBX, 0
+    56 000000EF 0F8563010000                  jne .STIError
+    57 000000F5 48890425[A0000000]            mov [a], RAX
+    58                                     ; end
+    59                                  
+    60                                     ; Input x
+    61 000000FD B801000000                    mov rax, 1; системная функция 1 (write)
+    62 00000102 BF01000000                    mov rdi, 1; дескриптор файла stdout=1
+    63 00000107 48BE-                         mov rsi, Hello2Msg ; адрес выводимой строки
+    63 00000109 [1000000000000000] 
+    64 00000111 BA10000000                    mov rdx, lenHello2 ; длина строки
+    65 00000116 0F05                          syscall; вызов системной функции
+    66                                     ;end
+    67                                  
+    68                                     ; read data to InBuf
+    69 00000118 B800000000                    mov rax, 0; системная функция 0 (read)
+    70 0000011D BF00000000                    mov rdi, 0 ; дескриптор файла stdout=0
+    71 00000122 488D3425[00000000]            lea rsi, InBuf ; передаем указатель на буфер
+    72 0000012A BA50000000                    mov rdx, lenIn ; длина строки
+    73 0000012F 0F05                          syscall
+    74                                     ; end
+    75                                  
+    76                                     ; InBuf To string
+    77 00000131 48BE-                         mov RSI, InBuf
+    77 00000133 [0000000000000000] 
+    78 0000013B E812FFFFFF                    call StrToInt64; Вход: ESI Выход: EAX, EBX содержит 0 if errors = 0
+    79 00000140 83FB00                        cmp EBX, 0
+    80 00000143 0F850F010000                  jne .STIError
+    81 00000149 48890425[A8000000]            mov [x], RAX
+    82                                     ; end
+    83                                  
+    84                                     ; Input b
+    85 00000151 B801000000                    mov rax, 1; системная функция 1 (write)
+    86 00000156 BF01000000                    mov rdi, 1; дескриптор файла stdout=1
+    87 0000015B 48BE-                         mov rsi, Hello3Msg ; адрес выводимой строки
+    87 0000015D [2000000000000000] 
+    88 00000165 BA10000000                    mov rdx, lenHello3 ; длина строки
+    89 0000016A 0F05                          syscall; вызов системной функции
+    90                                     ;end
+    91                                  
+    92                                     ; read data to InBuf
+    93 0000016C B800000000                    mov rax, 0; системная функция 0 (read)
+    94 00000171 BF00000000                    mov rdi, 0 ; дескриптор файла stdout=0
+    95 00000176 488D3425[00000000]            lea rsi, InBuf ; передаем указатель на буфер
+    96 0000017E BA50000000                    mov rdx, lenIn ; длина строки
+    97 00000183 0F05                          syscall
+    98                                     ; end
+    99                                  
+   100                                     ; InBuf To string
+   101 00000185 48BE-                         mov RSI, InBuf
+   101 00000187 [0000000000000000] 
+   102 0000018F E8BEFEFFFF                    call StrToInt64; Вход: ESI Выход: EAX, EBX содержит 0 if errors = 0
+   103 00000194 83FB00                        cmp EBX, 0
+   104 00000197 0F85BB000000                  jne .STIError
+   105 0000019D 48890425[B0000000]            mov [b], RAX
+   106                                     ; end
+   107                                  
+   108                                     ; Input j
+   109 000001A5 B801000000                    mov rax, 1; системная функция 1 (write)
+   110 000001AA BF01000000                    mov rdi, 1; дескриптор файла stdout=1
+   111 000001AF 48BE-                         mov rsi, Hello4Msg ; адрес выводимой строки
+   111 000001B1 [3000000000000000] 
+   112 000001B9 BA10000000                    mov rdx, lenHello4 ; длина строки
+   113 000001BE 0F05                          syscall; вызов системной функции
+   114                                     ;end
+   115                                  
+   116                                     ; read data to InBuf
+   117 000001C0 B800000000                    mov rax, 0; системная функция 0 (read)
+   118 000001C5 BF00000000                    mov rdi, 0 ; дескриптор файла stdout=0
+   119 000001CA 488D3425[00000000]            lea rsi, InBuf ; передаем указатель на буфер
+   120 000001D2 BA50000000                    mov rdx, lenIn ; длина строки
+   121 000001D7 0F05                          syscall
+   122                                     ; end
+   123                                  
+   124                                     ; InBuf To string
+   125 000001D9 48BE-                         mov RSI, InBuf
+   125 000001DB [0000000000000000] 
+   126 000001E3 E86AFEFFFF                    call StrToInt64; Вход: ESI Выход: EAX, EBX содержит 0 if errors = 0
+   127 000001E8 83FB00                        cmp EBX, 0
+   128 000001EB 756B                          jne .STIError
+   129 000001ED 48890425[B8000000]            mov [j], RAX
+   130                                     ; end
+   131 000001F5 EB00                          jmp .countResult
+   132                                  ; end
+   133                                  
+   134                                  .countResult:
+   135 000001F7 488B0425[B8000000]         mov rax, [j]
+   136 000001FF 4883F805                   cmp rax, 5
+   137 00000203 7F42                       jg .jtrue
+   138 00000205 488B0425[B0000000]         mov rax, [b]
+   139 0000020D 4883F805                   cmp rax, 5
+   140 00000211 7462                       je .ZeroDivError
+   141 00000213 488B0425[A8000000]         mov rax, [x]
+   142 0000021B 488B1C25[A0000000]         mov rbx, [a]
+   143 00000223 48F7EB                     imul rbx
+   144 00000226 BB03000000                 mov rbx, 3
+   145 0000022B 48F7EB                     imul rbx
+   146 0000022E 488B1C25[B0000000]         mov rbx, [b]
+   147 00000236 4883EB05                   sub rbx, 5
+   148 0000023A 48F7FB                     idiv rbx
+   149 0000023D 48890425[C0000000]         mov [F], rax
+   150 00000245 EB4B                       jmp .output
+   151                                  
+   152                                  .jtrue:
+   153 00000247 48C7C0F4FFFFFF             mov rax, -12
+   154 0000024E 48890425[C0000000]         mov [F], rax
+   155 00000256 EB3A                       jmp .output
+   156                                  
+   157                                  ; end
+   158                                  
+   159                                  .STIError:
+   160 00000258 B801000000                    mov rax, 1; системная функция 1 (write)
+   161 0000025D BF01000000                    mov rdi, 1; дескриптор файла stdout=1
+   162 00000262 48BE-                         mov rsi, ErrorSTIMsg ; адрес выводимой строки
+   162 00000264 [4000000000000000] 
+   163 0000026C BA28000000                    mov rdx, lenErrorSTI ; длина строки
+   164 00000271 0F05                          syscall; вызов системной функции
+   165 00000273 EB6D                          jmp .end
+   166                                     ;end
    167                                  
-   168                                  output:
-   169                                  ; Output
-   170 00000210 B801000000                 mov rax, 1; системная функция 1 (write)
-   171 00000215 BF01000000                 mov rdi, 1; дескриптор файла stdout=1
-   172 0000021A 48BE-                      mov rsi, ResMsg ; адрес выводимой строки
-   172 0000021C [6800000000000000] 
-   173 00000224 BA08000000                 mov rdx, lenRes ; длина строки
-   174 00000229 0F05                       syscall; вызов системной функции
-   175                                  
-   176 0000022B B801000000                 mov rax, 1; системная функция 1 (write)
-   177 00000230 BF01000000                 mov rdi, 1; дескриптор файла stdout=1
-   178 00000235 48BE-                      mov rsi, OutBuf ; адрес выводимой строки
-   178 00000237 [5000000000000000] 
-   179 0000023F BA50000000                 mov rdx, lenOut ; длина строки
-   180 00000244 0F05                       syscall; вызов системной функции
-   181 00000246 EB00                       jmp end
-   182                                  ;end
-   183                                  
-   184                                  end:
-   185                                  ; close program
-   186 00000248 B83C000000                 mov rax, 60; системная функция 60 (exit)
-   187 0000024D 4831FF                     xor rdi, rdi; return code 0
-   188 00000250 0F05                       syscall; вызов системной функции
-   189                                  ; end
+   168                                  .ZeroDivError:
+   169 00000275 B801000000                    mov rax, 1; системная функция 1 (write)
+   170 0000027A BF01000000                    mov rdi, 1; дескриптор файла stdout=1
+   171 0000027F 48BE-                         mov rsi, ZeroDivMsg ; адрес выводимой строки
+   171 00000281 [6800000000000000] 
+   172 00000289 BA20000000                    mov rdx, lenZeroDiv ; длина строки
+   173 0000028E 0F05                          syscall; вызов системной функции
+   174 00000290 EB50                          jmp .end
+   175                                     ;end
+   176                                  
+   177                                  .output:
+   178                                  ; Output
+   179                                     ; Result to string
+   180 00000292 48BE-                         mov rsi, OutBuf
+   180 00000294 [5000000000000000] 
+   181 0000029C 488B0425[C0000000]            mov rax, [F]
+   182 000002A4 98                            cwde
+   183 000002A5 E856FDFFFF                    call IntToStr64
+   184                                     ; end
+   185 000002AA B801000000                 mov rax, 1; системная функция 1 (write)
+   186 000002AF BF01000000                 mov rdi, 1; дескриптор файла stdout=1
+   187 000002B4 48BE-                      mov rsi, ResMsg ; адрес выводимой строки
+   187 000002B6 [8800000000000000] 
+   188 000002BE BA08000000                 mov rdx, lenRes ; длина строки
+   189 000002C3 0F05                       syscall; вызов системной функции
    190                                  
+   191 000002C5 B801000000                 mov rax, 1; системная функция 1 (write)
+   192 000002CA BF01000000                 mov rdi, 1; дескриптор файла stdout=1
+   193 000002CF 48BE-                      mov rsi, OutBuf ; адрес выводимой строки
+   193 000002D1 [5000000000000000] 
+   194 000002D9 BA50000000                 mov rdx, lenOut ; длина строки
+   195 000002DE 0F05                       syscall; вызов системной функции
+   196 000002E0 EB00                       jmp .end
+   197                                  ;end
+   198                                  
+   199                                  .end:
+   200                                  ; close program
+   201 000002E2 B83C000000                 mov rax, 60; системная функция 60 (exit)
+   202 000002E7 4831FF                     xor rdi, rdi; return code 0
+   203 000002EA 0F05                       syscall; вызов системной функции
+   204                                  ; end
+   205                                  

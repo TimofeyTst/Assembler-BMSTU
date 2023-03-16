@@ -10,6 +10,8 @@
       lenHello4 equ $-Hello4Msg
       ErrorSTIMsg dq "Error while transform str to int", 10
       lenErrorSTI equ $-ErrorSTIMsg
+      ZeroDivMsg dq "Zero Division Error", 10
+      lenZeroDiv equ $-ZeroDivMsg
 
       ResMsg dq "Result: "
       lenRes equ $-ResMsg
@@ -51,7 +53,7 @@ _start:
       mov RSI, InBuf
       call StrToInt64; Вход: ESI Выход: EAX, EBX содержит 0 if errors = 0
       cmp EBX, 0
-      jne error
+      jne .STIError
       mov [a], RAX
    ; end
 
@@ -75,11 +77,11 @@ _start:
       mov RSI, InBuf
       call StrToInt64; Вход: ESI Выход: EAX, EBX содержит 0 if errors = 0
       cmp EBX, 0
-      jne error
+      jne .STIError
       mov [x], RAX
    ; end
 
-   ; Input q
+   ; Input b
       mov rax, 1; системная функция 1 (write)
       mov rdi, 1; дескриптор файла stdout=1
       mov rsi, Hello3Msg ; адрес выводимой строки
@@ -99,7 +101,7 @@ _start:
       mov RSI, InBuf
       call StrToInt64; Вход: ESI Выход: EAX, EBX содержит 0 if errors = 0
       cmp EBX, 0
-      jne error
+      jne .STIError
       mov [b], RAX
    ; end
 
@@ -123,50 +125,63 @@ _start:
       mov RSI, InBuf
       call StrToInt64; Вход: ESI Выход: EAX, EBX содержит 0 if errors = 0
       cmp EBX, 0
-      jne error
-      mov [b], RAX
+      jne .STIError
+      mov [j], RAX
    ; end
-      jmp output
+      jmp .countResult
 ; end
-error:
+
+.countResult:
+   mov rax, [j]
+   cmp rax, 5
+   jg .jtrue
+   mov rax, [b]
+   cmp rax, 5
+   je .ZeroDivError
+   mov rax, [x]
+   mov rbx, [a]
+   imul rbx
+   mov rbx, 3
+   imul rbx
+   mov rbx, [b]
+   sub rbx, 5
+   idiv rbx
+   mov [F], rax
+   jmp .output
+
+.jtrue:
+   mov rax, -12
+   mov [F], rax
+   jmp .output
+
+; end
+
+.STIError:
       mov rax, 1; системная функция 1 (write)
       mov rdi, 1; дескриптор файла stdout=1
       mov rsi, ErrorSTIMsg ; адрес выводимой строки
       mov rdx, lenErrorSTI ; длина строки
       syscall; вызов системной функции
-      jmp end
+      jmp .end
    ;end
 
+.ZeroDivError:
+      mov rax, 1; системная функция 1 (write)
+      mov rdi, 1; дескриптор файла stdout=1
+      mov rsi, ZeroDivMsg ; адрес выводимой строки
+      mov rdx, lenZeroDiv ; длина строки
+      syscall; вызов системной функции
+      jmp .end
+   ;end
 
-; ; Count result
-;    mov RAX, [a]
-;    imul rax
-;    mov RBX, [a]
-;    imul rbx
-;    mov RBX, [q]
-;    idiv RBX
-;    mov RBX, RAX; Сохранили третий рез-т в BX
-;    mov RAX, [a]
-;    mov RDX, [q]
-;    imul RDX
-;    mov RDX, 2
-;    imul RDX
-;    sub RBX, RAX
-;    mov RAX, [r]
-;    imul RAX
-;    add RAX, RBX
-;    mov [S], RAX; Success!
-; ; end
-
-; ; Result to string
-;    mov rsi, OutBuf
-;    mov rax, [S]
-;    cwde
-;    call IntToStr64
-; ; end
-
-output:
+.output:
 ; Output
+   ; Result to string
+      mov rsi, OutBuf
+      mov rax, [F]
+      cwde
+      call IntToStr64
+   ; end
    mov rax, 1; системная функция 1 (write)
    mov rdi, 1; дескриптор файла stdout=1
    mov rsi, ResMsg ; адрес выводимой строки
@@ -178,10 +193,10 @@ output:
    mov rsi, OutBuf ; адрес выводимой строки
    mov rdx, lenOut ; длина строки
    syscall; вызов системной функции
-   jmp end
+   jmp .end
 ;end
 
-end:
+.end:
 ; close program
    mov rax, 60; системная функция 60 (exit)
    xor rdi, rdi; return code 0

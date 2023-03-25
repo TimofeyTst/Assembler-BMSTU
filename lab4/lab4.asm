@@ -1,36 +1,200 @@
+%include "../lib64.asm"
+
+%define STDIN 0
+%define READ 0
+%define STDOUT 1
+%define WRITE 1
+%define EXIT 60
+
+%define ROWS 5
+%define COLUMNS 7
+%define MATRIX_SIZE 35
+
 section .data
-matrix db 5*7 dup(0)  ; объявляем матрицу 5*7
+    StartMsg db "Enter 5*7 matrix:", 10
+    StartLen equ $-StartMsg
+
+    ResultMsg db "Result:", 10
+    ResultLen equ $-ResultMsg
+
+    IncorrectLineMsg db "Each line should have exactly 7 numbers divided by spaces", 10
+    IncorrectLineLen equ $-IncorrectLineMsg
+
+    ErrorSTIMsg dq "Error while transform str to int", 10
+    ErrorSTILen equ $-ErrorSTIMsg
+
+section .bss
+    matrix times MATRIX_SIZE resq 1
+    res resq 1
+
+    OutBuf resq 10
+    lenOut equ $-OutBuf
+    InBuf resq 10
+    lenIn equ $-InBuf
+
 
 section .text
 global _start
 
 _start:
-    ; ввод матрицы
-    mov rcx, 5         ; количество строк матрицы
-    mov rsi, matrix    ; адрес начала матрицы
+    mov rax, WRITE
+    mov rdi, STDOUT
+    mov rsi, StartMsg
+    mov rdx, StartLen
+    syscall
 
-input_loop:
-    push rcx           ; сохраняем счетчик цикла на стеке
-    mov rcx, 7         ; количество элементов в строке
-    mov rdi, rsi       ; сохраняем адрес текущей строки
+    mov rcx, ROWS
+    xor rdi, rdi
 
-element_loop:
-    ; ввод элемента матрицы
-    mov rax, 0         ; номер системного вызова для чтения с клавиатуры
-    mov rbx, 0         ; дескриптор файла для стандартного ввода (клавиатура)
-    mov rcx, rdi       ; передаем адрес текущего элемента матрицы в качестве аргумента
-    mov rdx, 1         ; количество байт для чтения (мы считываем один байт за раз)
-    syscall           ; вызов системного вызова
+read_line:
+    push rcx
+    push rdi
 
-    ; сохраняем считанное значение в памяти
-    sub al, '0'        ; преобразуем символ-цифру в числовое значение
-    mov [edi], al      ; сохраняем значение в текущем элементе
+    mov rax, READ
+    mov rdi, STDIN
+    mov rsi, InBuf
+    mov rdx, lenIn
+    syscall
 
-    inc edi            ; увеличиваем указатель на следующий элемент в строке
-    loop element_loop  ; повторяем для остальных элементов в строке
+    pop rdi
+    mov rcx, rax ; Сохраням длину строки
+    xor rdx, rdx ; Обнуляем регистр
+    xor r8, r8 ; Обнуляем регистр
 
-    pop rcx            ; восстанавливаем счетчик цикла из стека
-    add esi, 7         ; увеличиваем указатель на начало следующей строки
-    loop input_loop    ; повторяем для остальных строк
+process_line:
+    cmp byte[InBuf + rdx], 10; Если конец строки то обрабатываем число
+    je process_number
 
-    ; здесь можно продолжить выполнение программы
+    cmp byte[InBuf + rdx], ' '; Если был не конец, и следующий символ 
+    jne next; не пробел, то продолжаем считывание
+
+    mov byte[InBuf + rdx], 10; Помещаем вместо проблеа \n
+    cmp r8, rdx; Если длина строки не совпадает с предыдущей
+    jne process_number
+    jmp next; ???
+
+process_number:
+    push rdx
+
+    call StrToInt64; Вход: RSI Выход: RAX, RBX содержит 0 if errors = 0
+    cmp rbx, 0
+    jne STIError; Вывод ошибки
+
+    mov [matrix + 8 * rdi], rax; Помещаем результат в матрицу
+    inc rdi; увеличиваем счетчик введенных чисел
+
+    pop rdx
+    mov r8, rdx; Теперь считывать следующее число надо начинать с 
+    inc r8; окончания длины предыдущего
+    lea rsi, [InBuf + r8]; Передаем указатель на смещенный буфер
+
+next:
+    inc rdx; Увеличиваем длину числа
+    loop process_line
+
+    pop rcx
+    mov rax, ROWS; Проверим количество введеных чисел < 7 в текущей строке
+    sub rax, rcx
+    inc rax
+    push rdx
+    mov rdx, COLUMNS
+    imul rdx
+    pop rdx 
+
+    cmp rdi, rax; Если введено чисел больше чем длинна строки матрицы
+    jne IncorrectLine
+
+    ; loop read_line; Увы здесь не подойдет шорт прыжок
+    dec rcx
+    cmp rcx, 0
+    jnz read_line
+
+; ; logic starts here    
+;     mov rcx, COLUMNS
+;     mov rax, MIN
+;     xor rdx, rdx
+
+; matrix_loop:
+;     mov rbx, rcx
+;     mov rcx, COLUMNS
+; inner_loop:
+;     cmp rbx, rcx
+;     jle skip
+
+;     cmp dword [matrix + rdx * 8], eax 
+;     jle skip
+
+;     mov rax, [matrix + rdx * 8]
+; skip:
+;     inc rdx
+;     loop inner_loop
+
+;     mov rcx, rbx
+;     loop matrix_loop
+
+;     mov rsi, output
+;     call IntToStr64
+
+;     mov rdx, rax
+;     mov rax, WRITE
+;     mov rdi, STDOUT   
+;     syscall
+
+output:
+    mov rax, WRITE
+    mov rdi, STDOUT
+    mov rsi, ResultMsg
+    mov rdx, ResultLen
+    syscall
+
+    mov rcx, ROWS
+    xor rbx, rbx; Обнуляем регистр
+output_row:
+    push rcx
+    mov rcx, COLUMNS
+output_column:
+    mov rsi, OutBuf
+    mov rax, [matrix + rbx * 8]
+    inc rbx
+    call IntToStr64
+
+    push rcx
+    mov rax, WRITE; системная функция 1 (write)
+    mov rdi, STDOUT; дескриптор файла stdout=1
+    mov rsi, OutBuf ; адрес выводимой строки
+    mov rdx, lenOut ; длина строки
+    syscall; вызов системной функции
+    pop rcx
+
+    loop output_column
+
+    mov rax, WRITE; системная функция 1 (write)
+    mov rdi, STDOUT; дескриптор файла stdout=1
+    mov rsi, 10 ; адрес выводимой строки
+    mov rdx, 1 ; длина строки
+    syscall; вызов системной функции
+
+    pop rcx
+    loop output_row
+
+exit:
+    xor rdi, rdi
+    mov rax, EXIT
+    syscall
+
+IncorrectLine:
+    mov rax, WRITE
+    mov rdi, STDOUT   
+    mov rsi, IncorrectLineMsg
+    mov rdx, IncorrectLineLen
+    syscall
+    jmp exit
+
+STIError:
+    mov rax, 1; системная функция 1 (write)
+    mov rdi, 1; дескриптор файла stdout=1
+    mov rsi, ErrorSTIMsg ; адрес выводимой строки
+    mov rdx, ErrorSTILen ; длина строки
+    syscall; вызов системной функции
+    jmp exit
+;end

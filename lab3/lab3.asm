@@ -30,7 +30,6 @@
    section .text ; сегмент кода
       global _start
 
-
 _start:
 ; input
    ; Input a

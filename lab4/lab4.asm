@@ -13,7 +13,7 @@
 section .data
     StartMsg db "Enter 5*7 matrix:", 10
     StartLen equ $-StartMsg
-
+    NewLine: db 0xA
     ResultMsg db "Result:", 10
     ResultLen equ $-ResultMsg
 
@@ -23,11 +23,12 @@ section .data
     ErrorSTIMsg dq "Error while transform str to int", 10
     ErrorSTILen equ $-ErrorSTIMsg
 
+    Space db "  "
+
 section .bss
     matrix times MATRIX_SIZE resq 1
-    res resq 1
 
-    OutBuf resq 10
+    OutBuf resw 1
     lenOut equ $-OutBuf
     InBuf resq 10
     lenIn equ $-InBuf
@@ -110,36 +111,42 @@ next:
     jnz read_line
 
 ; ; logic starts here    
-;     mov rcx, COLUMNS
-;     mov rax, MIN
-;     xor rdx, rdx
+    mov rcx, ROWS
+    xor rdx, rdx; Обнуляем подсчет текущей строки
 
-; matrix_loop:
-;     mov rbx, rcx
-;     mov rcx, COLUMNS
-; inner_loop:
-;     cmp rbx, rcx
-;     jle skip
+change_row:
+    test rdx, 1
+    jz next_row
+    push rcx
+    mov rax, COLUMNS; Разделим текущий счетчик на количество столбцов
+    mov ebx, 2
+    push rdx
+    cwd
+    idiv ebx
+    pop rdx
+    mov rcx, rax; Итерировать должны лишь до половины текущей длины строки  
+    mov rax, COLUMNS
+    imul rax, rdx
+    add rax, rcx
+    dec rax; получаем индекс первого элемента, который надо менять
+    mov rbx, rax
+    add rbx, 2; Индекс первого с конца
 
-;     cmp dword [matrix + rdx * 8], eax 
-;     jle skip
+change_column:
+    mov r8, [matrix + 8 * rax]; Запомнили первый элемент в регистре r8
+    mov r9, [matrix + 8 * rbx]; Запомнили второй элемент в регистре r9
+    mov [matrix + 8 * rbx], r8; Поместили первый элемент во второй
+    mov [matrix + 8 * rax], r9; Поместили второй элемент в первый
 
-;     mov rax, [matrix + rdx * 8]
-; skip:
-;     inc rdx
-;     loop inner_loop
+    dec rax
+    inc rbx
+    loop change_column
+    pop rcx
+next_row:
+    inc rdx
+    loop change_row
 
-;     mov rcx, rbx
-;     loop matrix_loop
-
-;     mov rsi, output
-;     call IntToStr64
-
-;     mov rdx, rax
-;     mov rax, WRITE
-;     mov rdi, STDOUT   
-;     syscall
-
+  ; end of logic
 output:
     mov rax, WRITE
     mov rdi, STDOUT
@@ -153,24 +160,26 @@ output_row:
     push rcx
     mov rcx, COLUMNS
 output_column:
+    push rcx
     mov rsi, OutBuf
-    mov rax, [matrix + rbx * 8]
+    mov rax, [matrix + 8 * rbx]
     inc rbx
     call IntToStr64
 
-    push rcx
     mov rax, WRITE; системная функция 1 (write)
     mov rdi, STDOUT; дескриптор файла stdout=1
     mov rsi, OutBuf ; адрес выводимой строки
     mov rdx, lenOut ; длина строки
     syscall; вызов системной функции
-    pop rcx
 
+    call PrintSpace
+
+    pop rcx
     loop output_column
 
     mov rax, WRITE; системная функция 1 (write)
     mov rdi, STDOUT; дескриптор файла stdout=1
-    mov rsi, 10 ; адрес выводимой строки
+    mov rsi, NewLine ; адрес выводимой строки
     mov rdx, 1 ; длина строки
     syscall; вызов системной функции
 
@@ -198,3 +207,11 @@ STIError:
     syscall; вызов системной функции
     jmp exit
 ;end
+
+PrintSpace:    
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, Space
+    mov rdx, 1
+    syscall
+    ret

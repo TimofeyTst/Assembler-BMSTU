@@ -8,6 +8,7 @@
 
 %define ROWS 5
 %define COLUMNS 7
+%define LASTCOLUMN 28
 %define MATRIX_SIZE 35
 
 section .data
@@ -111,40 +112,39 @@ next:
     jnz read_line
 
 ; ; logic starts here    
-    mov rcx, ROWS
-    xor rdx, rdx; Обнуляем подсчет текущей строки
-
-change_row:
+    mov rcx, COLUMNS
+    xor rdx, rdx; Обнуляем подсчет текущего столбца
+    mov rax, 0; получаем индекс первого элемента
+    
+change_column:
     test rdx, 1
-    jz next_row
+    jz next_column
     push rcx
-    mov rax, COLUMNS; Разделим текущий счетчик на количество столбцов
+    mov rax, ROWS; Разделим текущий счетчик на количество столбцов
     mov ebx, 2
     push rdx
     cwd
     idiv ebx
     pop rdx
-    mov rcx, rax; Итерировать должны лишь до половины текущей длины строки  
-    mov rax, COLUMNS
-    imul rax, rdx
-    add rax, rcx
-    dec rax; получаем индекс первого элемента, который надо менять
-    mov rbx, rax
-    add rbx, 2; Индекс первого с конца
+    mov rcx, rax; Итерировать должны лишь до половины текущей длины столбца
 
-change_column:
+    mov rax, rdx; Получаем индекс первого элемента в текущем столбце
+    mov rbx, rax
+    add rbx, LASTCOLUMN
+
+inverse_order:
     mov r8, [matrix + 8 * rax]; Запомнили первый элемент в регистре r8
     mov r9, [matrix + 8 * rbx]; Запомнили второй элемент в регистре r9
     mov [matrix + 8 * rbx], r8; Поместили первый элемент во второй
     mov [matrix + 8 * rax], r9; Поместили второй элемент в первый
 
-    dec rax
-    inc rbx
-    loop change_column
+    add rax, COLUMNS
+    sub rbx, COLUMNS
+    loop inverse_order
     pop rcx
-next_row:
-    inc rdx
-    loop change_row
+next_column:
+    inc rdx; Увеличиваем счетчик столбцов
+    loop change_column
 
   ; end of logic
 output:

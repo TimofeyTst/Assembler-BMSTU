@@ -133,7 +133,7 @@ _start:
 .countResult:
    mov rax, [j]
    cmp rax, 5
-   jg .jtrue
+   jge .jtrue
    mov rax, [b]
    cmp rax, 5
    je .ZeroDivError

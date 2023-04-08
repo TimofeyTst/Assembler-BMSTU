@@ -38,15 +38,15 @@ extern "C" char * remove_duplicates(size_t size, char * str);
 
 int main() {
     char str[] = "abcd# abcdef aaa# bbbb# bbbb c# aaa bbbb abcdaaa#   # kakkkakkkk#ak";
-    char should_be[] = "abcd# abcdef   bbbb c# aaa bbbb abcd kakkkaak";
-    char* result = remove_duplicates(strlen(str), str);
+    // char should_be[] = "abcd# abcdef   bbbb c# aaa bbbb abcd kakkkaak";
+    remove_duplicates(strlen(str), str);
 
-    printf("%s\n", result);
-    if (strcmp(result, should_be)) {
-        std::cout << "False\n";
-    } else {
-        std::cout << "True\n";
-    }
+    // printf("%s\n", result);
+    // if (strcmp(result, should_be)) {
+    //     std::cout << "False\n";
+    // } else {
+    //     std::cout << "True\n";
+    // }
 
     // free(result);
 

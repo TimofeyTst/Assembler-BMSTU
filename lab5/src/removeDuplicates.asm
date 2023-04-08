@@ -6,12 +6,11 @@
 %define WRITE 1
 %define EXIT 60
 
-section .data
-
 section .bss
     result resb 256
 
 section .text
+    extern print_result
     global remove_duplicates
 
 remove_duplicates:
@@ -68,5 +67,7 @@ end_while:
     pop rcx;
     pop rdx;
     pop rbx;
-    lea rax, result 
+    ; lea rax, result
+    lea rdi, result
+    call print_result
     ret

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <cstring>
 
-char* remove_duplicates(char* str) {
+char* remove_duplicates_(char* str) {
     size_t len = strlen(str);
     char* result = (char*) malloc(len + 1);
     size_t i = 0;
@@ -34,19 +34,21 @@ char* remove_duplicates(char* str) {
     return result;
 }
 
+extern "C" char * remove_duplicates(size_t size, char * str);
 
 int main() {
     char str[] = "abcd# abcdef aaa# bbbb# bbbb c# aaa bbbb abcdaaa#   # kakkkakkkk#ak";
     char should_be[] = "abcd# abcdef   bbbb c# aaa bbbb abcd kakkkaak";
-    char* result = remove_duplicates(str);
+    char* result = remove_duplicates(strlen(str), str);
 
     printf("%s\n", result);
-        if (strcmp(result, should_be)) {
+    if (strcmp(result, should_be)) {
         std::cout << "False\n";
     } else {
         std::cout << "True\n";
     }
 
-    free(result);
+    // free(result);
+
     return 0;
 }

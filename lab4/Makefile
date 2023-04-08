@@ -8,9 +8,11 @@ help:
 $(TARGET): $(TARGET).asm	
 	nasm -f elf64 -l $(TARGET).lst $(TARGET).asm
 	ld -o $(TARGET) $(TARGET).o 
+
 run: $(TARGET)
 	clear
 	./$(TARGET)
+
 debug: $(TARGET)
 	edb --run $(TARGET)
 	clear

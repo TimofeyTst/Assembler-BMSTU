@@ -36,9 +36,9 @@ section .bss
 
 
 section .text
-global _start
+global _startASM
 
-_start:
+_startASM:
     mov rax, WRITE
     mov rdi, STDOUT
     mov rsi, StartMsg

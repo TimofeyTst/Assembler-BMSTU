@@ -39,6 +39,7 @@ extern "C" char * remove_duplicates(size_t size, char * str);
 int main() {
     char str[] = "abcd# abcdef aaa# bbbb# bbbb c# aaa bbbb abcdaaa#   # kakkkakkkk#ak";
     // char should_be[] = "abcd# abcdef   bbbb c# aaa bbbb abcd kakkkaak";
+    printf("Введенная строка: %s\n", str);
     remove_duplicates(strlen(str), str);
 
     // printf("%s\n", result);

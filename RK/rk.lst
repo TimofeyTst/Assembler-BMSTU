@@ -93,98 +93,97 @@
     16                                      ResultLen equ $-ResultMsg
     17                                  
     18 00000009 2020                        Space db "  "
-    19                                      ; matrix dd 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5
-    20 0000000B 010000000100000001-         matrix dd 1,1,1,1,-1, 2,-2,2,-2,2, 3,3,-3,3,3, 4,4,4,4,4, 5,5,5,5,5
-    20 00000014 00000001000000FFFF-
-    20 0000001D FFFF02000000FEFFFF-
-    20 00000026 FF02000000FEFFFFFF-
-    20 0000002F 020000000300000003-
-    20 00000038 000000FDFFFFFF0300-
-    20 00000041 000003000000040000-
-    20 0000004A 000400000004000000-
-    20 00000053 040000000400000005-
-    20 0000005C 000000050000000500-
-    20 00000065 000005000000050000-
-    20 0000006E 00                 
-    21                                  
-    22                                  section .bss
-    23                                  
-    24 00000000 ????                        OutBuf resw 1
-    25                                      lenOut equ $-OutBuf
-    26                                  
-    27                                  section .text
-    28                                  global _start
-    29                                  
-    30                                  _start:
-    31 000000A9 BA01000000                  mov rdx, 1
-    32 000000AE B814000000                  mov rax, 20
-    33 000000B3 B905000000                  mov rcx, ROWS
-    34                                  check_el:
-    35 000000B8 488B1C85[0B000000]          mov rbx, [matrix + ELEMENT_SIZE*rax]
-    36 000000C0 83FB00                      cmp ebx, 0
-    37 000000C3 7D04                        jge next
-    38 000000C5 480FAFD3                    imul rdx, rbx
-    39                                  next:
-    40 000000C9 4883E804                    sub rax, 4
-    41 000000CD E2E9                        loop check_el
-    42                                  
-    43 000000CF B80B000000                  mov rax, 11
-    44 000000D4 891485[0B000000]            mov [matrix + ELEMENT_SIZE * rax], edx
-    45                                  ; end of logic
-    46                                  
-    47                                  output:
-    48 000000DB B801000000                  mov rax, WRITE
-    49 000000E0 BF01000000                  mov rdi, STDOUT
-    50 000000E5 48BE-                       mov rsi, ResultMsg
-    50 000000E7 [0100000000000000] 
-    51 000000EF BA08000000                  mov rdx, ResultLen
-    52 000000F4 0F05                        syscall
-    53                                  
-    54 000000F6 B905000000                  mov rcx, ROWS
-    55 000000FB 4831DB                      xor rbx, rbx; Обнуляем регистр
-    56                                  output_row:
-    57 000000FE 51                          push rcx
-    58 000000FF B905000000                  mov rcx, COLUMNS
-    59                                  output_column:
-    60 00000104 51                          push rcx
-    61 00000105 48BE-                       mov rsi, OutBuf
-    61 00000107 [0000000000000000] 
-    62 0000010F 488B049D[0B000000]          mov rax, [matrix + ELEMENT_SIZE * rbx]
-    63 00000117 48FFC3                      inc rbx
-    64 0000011A E8E1FEFFFF                  call IntToStr64
-    65                                  
-    66 0000011F B801000000                  mov rax, WRITE; системная функция 1 (write)
-    67 00000124 BF01000000                  mov rdi, STDOUT; дескриптор файла stdout=1
-    68 00000129 48BE-                       mov rsi, OutBuf ; адрес выводимой строки
-    68 0000012B [0000000000000000] 
-    69 00000133 BA02000000                  mov rdx, lenOut ; длина строки
-    70 00000138 0F05                        syscall; вызов системной функции
-    71                                  
-    72 0000013A E82B000000                  call PrintSpace
-    73                                  
-    74 0000013F 59                          pop rcx
-    75 00000140 E2C2                        loop output_column
-    76                                  
-    77 00000142 B801000000                  mov rax, WRITE; системная функция 1 (write)
-    78 00000147 BF01000000                  mov rdi, STDOUT; дескриптор файла stdout=1
-    79 0000014C 48BE-                       mov rsi, NewLine ; адрес выводимой строки
-    79 0000014E [0000000000000000] 
-    80 00000156 BA01000000                  mov rdx, 1 ; длина строки
-    81 0000015B 0F05                        syscall; вызов системной функции
-    82                                  
-    83 0000015D 59                          pop rcx
-    84 0000015E E29E                        loop output_row
-    85                                  
-    86                                  exit:
-    87 00000160 4831FF                      xor rdi, rdi
-    88 00000163 B83C000000                  mov rax, EXIT
-    89 00000168 0F05                        syscall
-    90                                  
-    91                                  PrintSpace:    
-    92 0000016A B801000000                  mov rax, 1
-    93 0000016F BF01000000                  mov rdi, 1
-    94 00000174 48BE-                       mov rsi, Space
-    94 00000176 [0900000000000000] 
-    95 0000017E BA01000000                  mov rdx, 1
-    96 00000183 0F05                        syscall
-    97 00000185 C3                          ret
+    19 0000000B 010000000100000001-         matrix dd 1,1,1,1,-1, 2,-2,2,-2,2, 3,3,-3,3,3, 4,4,4,4,4, 5,5,5,5,5
+    19 00000014 00000001000000FFFF-
+    19 0000001D FFFF02000000FEFFFF-
+    19 00000026 FF02000000FEFFFFFF-
+    19 0000002F 020000000300000003-
+    19 00000038 000000FDFFFFFF0300-
+    19 00000041 000003000000040000-
+    19 0000004A 000400000004000000-
+    19 00000053 040000000400000005-
+    19 0000005C 000000050000000500-
+    19 00000065 000005000000050000-
+    19 0000006E 00                 
+    20                                  
+    21                                  section .bss
+    22                                  
+    23 00000000 ????                        OutBuf resw 1
+    24                                      lenOut equ $-OutBuf
+    25                                  
+    26                                  section .text
+    27                                  global _start
+    28                                  
+    29                                  _start:
+    30 000000A9 BA01000000                  mov rdx, 1
+    31 000000AE B814000000                  mov rax, 20
+    32 000000B3 B905000000                  mov rcx, ROWS
+    33                                  check_el:
+    34 000000B8 488B1C85[0B000000]          mov rbx, [matrix + ELEMENT_SIZE*rax]
+    35 000000C0 83FB00                      cmp ebx, 0
+    36 000000C3 7D04                        jge next
+    37 000000C5 480FAFD3                    imul rdx, rbx
+    38                                  next:
+    39 000000C9 4883E804                    sub rax, 4
+    40 000000CD E2E9                        loop check_el
+    41                                  
+    42 000000CF B80B000000                  mov rax, 11
+    43 000000D4 891485[0B000000]            mov [matrix + ELEMENT_SIZE * rax], edx
+    44                                  ; end of logic
+    45                                  
+    46                                  output:
+    47 000000DB B801000000                  mov rax, WRITE
+    48 000000E0 BF01000000                  mov rdi, STDOUT
+    49 000000E5 48BE-                       mov rsi, ResultMsg
+    49 000000E7 [0100000000000000] 
+    50 000000EF BA08000000                  mov rdx, ResultLen
+    51 000000F4 0F05                        syscall
+    52                                  
+    53 000000F6 B905000000                  mov rcx, ROWS
+    54 000000FB 4831DB                      xor rbx, rbx; Обнуляем регистр
+    55                                  output_row:
+    56 000000FE 51                          push rcx
+    57 000000FF B905000000                  mov rcx, COLUMNS
+    58                                  output_column:
+    59 00000104 51                          push rcx
+    60 00000105 48BE-                       mov rsi, OutBuf
+    60 00000107 [0000000000000000] 
+    61 0000010F 488B049D[0B000000]          mov rax, [matrix + ELEMENT_SIZE * rbx]
+    62 00000117 48FFC3                      inc rbx
+    63 0000011A E8E1FEFFFF                  call IntToStr64
+    64                                  
+    65 0000011F B801000000                  mov rax, WRITE; системная функция 1 (write)
+    66 00000124 BF01000000                  mov rdi, STDOUT; дескриптор файла stdout=1
+    67 00000129 48BE-                       mov rsi, OutBuf ; адрес выводимой строки
+    67 0000012B [0000000000000000] 
+    68 00000133 BA02000000                  mov rdx, lenOut ; длина строки
+    69 00000138 0F05                        syscall; вызов системной функции
+    70                                  
+    71 0000013A E82B000000                  call PrintSpace
+    72                                  
+    73 0000013F 59                          pop rcx
+    74 00000140 E2C2                        loop output_column
+    75                                  
+    76 00000142 B801000000                  mov rax, WRITE; системная функция 1 (write)
+    77 00000147 BF01000000                  mov rdi, STDOUT; дескриптор файла stdout=1
+    78 0000014C 48BE-                       mov rsi, NewLine ; адрес выводимой строки
+    78 0000014E [0000000000000000] 
+    79 00000156 BA01000000                  mov rdx, 1 ; длина строки
+    80 0000015B 0F05                        syscall; вызов системной функции
+    81                                  
+    82 0000015D 59                          pop rcx
+    83 0000015E E29E                        loop output_row
+    84                                  
+    85                                  exit:
+    86 00000160 4831FF                      xor rdi, rdi
+    87 00000163 B83C000000                  mov rax, EXIT
+    88 00000168 0F05                        syscall
+    89                                  
+    90                                  PrintSpace:    
+    91 0000016A B801000000                  mov rax, 1
+    92 0000016F BF01000000                  mov rdi, 1
+    93 00000174 48BE-                       mov rsi, Space
+    93 00000176 [0900000000000000] 
+    94 0000017E BA01000000                  mov rdx, 1
+    95 00000183 0F05                        syscall
+    96 00000185 C3                          ret

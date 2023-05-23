@@ -1,0 +1,7 @@
+2double DD(float y,int u) { int l,m; int r; l=y; m=u; }
+double DD(float y,int u) { int l,m; int r; l=y; m=u }
+double DD(float y,int u) { int l,m int r; l=y; m=u; }
+DD(float y,int u) { int l,m; int r; l=y; m=u; }
+2double DD(float y,int u) { int l,m; int r; l=y; m=u }
+bool isNumber(char sb) { char sb2; sb2 = sb }
+bool isNumber(char sb) { char sb2; sb2 = sb; }

@@ -1,0 +1,11 @@
+int DD(char y,int u) { int i,j; i=y; j=u;}
+int DD(char y,int u) { int i,      j;        i=y;          j=u;}
+int DD(char y,int u) { int i,j; i=y; j=u;}
+int DD(char y,int u) { int i,j; i=15; j=u;}
+int DD(char y,int u) { y=15; }
+void DD(char y,int u) { y=15; }
+double sum(double a, double y) { double r,k; }
+double sum( ) { }
+double sum( int a ) { }
+DOUBLE sum( int a ) { }
+int DD ( char y , int u ) { int i , j ; i = y ; j = u ; }

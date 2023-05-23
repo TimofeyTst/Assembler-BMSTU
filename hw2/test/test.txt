@@ -1,0 +1,8 @@
+int DD(char y,int u) { int i,j; i=y; j=u;}
+int DD(char y,int u) { int i,      j;        i=y;          j=u;}
+int DD(char y,int u) { y=15; }
+double sum(double a, double y) { double r,k; }
+double sum( ) { }
+2double DD(float y,int u) { int l,m; int r; l=y; m=u; }
+double DD(float y,int u) { int l,m int r; l=y; m=u; }
+bool isNumber(char sb) { char sb2; sb2 = sb }

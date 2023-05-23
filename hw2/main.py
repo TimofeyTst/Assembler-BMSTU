@@ -1,6 +1,7 @@
 from enum import Enum
 import re
 import argparse
+from termcolor import colored
 
 class State(Enum):
     S0 = 0
@@ -88,26 +89,26 @@ def check_function_definition(string):
                 if current_state in transitions and symbol_enum in transitions[current_state]:
                     current_state = transitions[current_state][symbol_enum]
                 else:
-                    print(f'Error: current symbol: "{symbol_enum.value}"')
+                    print(colored(f'Error: Expected symbol "{symbol_enum.value}"', 'red'))
                     return False
 
             try:
                 symbol_enum = Symbol(symbol)
             except ValueError:
-                print(f'Error: Недопустимый символ "{symbol}"')
+                print(colored(f'Error: Invalid symbol "{symbol}"', 'red'))
                 return False
             
             if current_state in transitions and symbol_enum in transitions[current_state]:
                 current_state = transitions[current_state][symbol_enum]
             else:
-                print(f'Error: current symbol "{symbol_enum.value}"')
+                print(colored(f'Error: Expected symbol "{symbol_enum.value}"', 'red'))
                 return False
 
     if current_state in final_states:
-        print('Parsed Successfully')
+        print(colored('Parsed Successfully', 'green'))
         return True
     else:
-        print('Error while parsing')
+        print(colored('Error while parsing', 'red'))
         return False
 
 
